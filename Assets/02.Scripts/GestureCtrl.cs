@@ -7,11 +7,8 @@ using System.Collections.Generic;
 public class GestureCtrl : MonoBehaviour
 {
     public Controller controller;
-    public GameObject movie;
     private GrabCtrl grabCtrl;
     private ObjectCtrl objectCtrl;
-    private SceneChangeCtrl sceneChangeCtrl;
-    private RawImage rawimage;
 
     public GameObject mainObject, sub1, sub2, sub3;
     public Transform point;
@@ -56,7 +53,6 @@ public class GestureCtrl : MonoBehaviour
         objectPV = mainObject.GetComponent<PhotonView>();
         mainObject.GetComponent<ObjectCtrl>().enabled = true;
         objectCtrl = mainObject.GetComponent<ObjectCtrl>();
-        sceneChangeCtrl = mainObject.GetComponent<SceneChangeCtrl>();
         tr = new Transform[4];
         tr[0] = mainObject.GetComponent<Transform>();
         tr[1] = sub1.GetComponent<Transform>();
@@ -88,6 +84,7 @@ public class GestureCtrl : MonoBehaviour
             rightHand = frame.Hands[0];
         }
     }
+
     void Update()
     {
         frame = controller.Frame(); // controller is a Controller object
@@ -106,8 +103,6 @@ public class GestureCtrl : MonoBehaviour
             palm = GameObject.FindGameObjectWithTag("Hand").GetComponent<Transform>();
             if (currentHand.Confidence > 0.98) // 98퍼센트이상의 정확도로 현재손을 인식하였을 때
             {
-                if (!movie.active)
-                {
                     focusIndex = objectCtrl.focusIndex;
                     if ((palm.position - Vector3.zero).magnitude < 0.26f && !stayGrab && !startGrab)
                     {
@@ -120,7 +115,6 @@ public class GestureCtrl : MonoBehaviour
                     {
                         if (!scatter && !startZoom && frame.Timestamp - endTime > 1500000) checkScatter();
                         if (scatter && frame.Hands.Count == 1 && frame.Timestamp - endTime > 1000000) checkGrab();
-                        if (!scatter && frame.Hands.Count == 1) checkSceneChange();
                         if (frame.Hands.Count == 2)
                         {
                             setHand();
@@ -130,12 +124,7 @@ public class GestureCtrl : MonoBehaviour
                                 checkGather();
                             }
                         }
-                    }
-                }
-                else // movie isn't active 
-                {
-                    checkSceneChange();
-                }
+                    }             
             } // confidence
         }
         else
@@ -167,28 +156,6 @@ public class GestureCtrl : MonoBehaviour
             }
         }
     }
-
-    void checkSceneChange()
-    {
-        if (currentHand.PinchStrength > 0.9 && !fingers[1].IsExtended && fingers[2].IsExtended
-                                    && fingers[2].StabilizedTipPosition.DistanceTo(fingers[3].StabilizedTipPosition) > 30.0f)
-        {
-            if (!startGrab)
-            {
-                startGrab = true;
-                startTime = frame.Timestamp;
-            }
-            else
-            {
-                if (frame.Timestamp - startTime > 750000
-                    && objectCtrl.State == ObjectCtrl.ObjectState.idle)
-                {
-                    setSceneChangeCtrl(true);
-                }
-            }
-        }
-    }
-
     void checkScatter()
     {
         if (!startScatter)
@@ -244,7 +211,7 @@ public class GestureCtrl : MonoBehaviour
                 }
                 else
                 {
-                    if (frame.Timestamp - startTime > 750000)
+                    if (frame.Timestamp - startTime > 500000)
                     {
                         twoHandDif = leftHand.PalmPosition.DistanceTo(rightHand.PalmPosition);
                         startGather = true;
@@ -289,7 +256,7 @@ public class GestureCtrl : MonoBehaviour
             }
             else
             {
-                if (frame.Timestamp - startTime > 750000
+                if (frame.Timestamp - startTime > 500000
                     && objectCtrl.State == ObjectCtrl.ObjectState.idle)
                 {
                    setGrabCtrl(true);
@@ -369,25 +336,5 @@ public class GestureCtrl : MonoBehaviour
         {
             tr[focusIndex].GetComponent<GrabCtrl>().enabled = true;
         }
-    }
-
-    void setSceneChangeCtrl(bool active)
-    {
-        if (!active)
-        {
-             sceneChangeCtrl.enabled = false;
-            startGrab = false;
-            endTime = frame.Timestamp;
-        }
-        else
-        {
-            sceneChangeCtrl.enabled = true;
-        }
-    }
-
-    void setMovieCtrl(bool active) 
-    {
-        if (active) movie.active = true;
-        else movie.active = false;
     }
 }// class

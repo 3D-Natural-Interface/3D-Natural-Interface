@@ -6,7 +6,6 @@ public class HandheldCtrl : MonoBehaviour
     public GameObject photonInit;
     public GameObject mainObject,sub1,sub2,sub3;
     private Transform[] tr;
-    private PhotonView pv;
     private PhotonView objectPV;
     public PhotonView gesturePV;
     private ObjectCtrl objectCtrl;
@@ -16,8 +15,8 @@ public class HandheldCtrl : MonoBehaviour
     private int focusIndex = 0;
     private bool connection = false;
     private bool idleTurn = false;
-    private float idleStartTime;
     private Vector2 curPos;
+    private int margin;
     // Use this for initialization
     void Start()
     {
@@ -27,9 +26,9 @@ public class HandheldCtrl : MonoBehaviour
         tr[1] = sub1.GetComponent<Transform>();
         tr[2] = sub2.GetComponent<Transform>();
         tr[3] = sub3.GetComponent<Transform>();
-        pv = GetComponent<PhotonView>();
         objectPV = mainObject.GetComponent<PhotonView>();
         objectCtrl = mainObject.GetComponent<ObjectCtrl>();
+        margin = Screen.height / 5;
     }
     // Update is called once per frame
     void Update()
@@ -92,7 +91,7 @@ public class HandheldCtrl : MonoBehaviour
         fontStyle.fontSize = 40;
         if (!photonInit.active) // 처음 연결할때
         {
-            if (GUI.Button(new Rect(50, 50, 300, 200),"Connect",fontStyle))
+            if (GUI.Button(new Rect(Screen.width / 20, Screen.height / 20, Screen.width / 7, Screen.height / 7),"Connect",fontStyle))
             {
                 photonInit.active = true;
             }
@@ -101,28 +100,28 @@ public class HandheldCtrl : MonoBehaviour
         {
             if (!connection)
             {
-                if (GUI.Button(new Rect(50, 50, 300, 200), "Connect", fontStyle))
+                if (GUI.Button(new Rect(Screen.width / 20, Screen.height / 20, Screen.width / 7, Screen.height / 7), "Connect", fontStyle))
                 {
                     setConnection(true);
                 }
             }
             else
             {
-                if (GUI.Button(new Rect(50, 50, 300, 200), "Disconnect", fontStyle) && objectCtrl.State == ObjectCtrl.ObjectState.idle)
+                if (GUI.Button(new Rect(Screen.width / 20, Screen.height / 20, Screen.width / 7, Screen.height / 7), "Disconnect", fontStyle) && objectCtrl.State == ObjectCtrl.ObjectState.idle)
                 {
                     setConnection(false);
                 }
-                if (GUI.Button(new Rect(50, 400, 300, 200), "Decompose", fontStyle)&& focusIndex == 0 && objectCtrl.State == ObjectCtrl.ObjectState.idle)
+                if (GUI.Button(new Rect(Screen.width / 20, Screen.height / 20 + margin, Screen.width / 7, Screen.height / 7), "Decompose", fontStyle)&& focusIndex == 0 && objectCtrl.State == ObjectCtrl.ObjectState.idle)
                 {
                     objectPV.RPC("setObjectState", PhotonTargets.All,2);
                 }
-                if (GUI.Button(new Rect(50, 750, 300, 200), "Compose", fontStyle) && focusIndex!=0 && objectCtrl.State == ObjectCtrl.ObjectState.idle)
+                if (GUI.Button(new Rect(Screen.width / 20, Screen.height / 20 + margin*2, Screen.width / 7, Screen.height / 7), "Compose", fontStyle) && focusIndex!=0 && objectCtrl.State == ObjectCtrl.ObjectState.idle)
                 {
                     objectPV.RPC("setObjectState", PhotonTargets.All, 3);
                 }
                 if(objectCtrl.State == ObjectCtrl.ObjectState.idle)
                 {
-                    if (GUI.Button(new Rect(50, 1100, 300, 200), "GyroOn", fontStyle))
+                    if (GUI.Button(new Rect(Screen.width / 20, Screen.height / 20 + margin*3, Screen.width / 7, Screen.height / 7), "GyroOn", fontStyle))
                     {
                         objectPV.RPC("setObjectState", PhotonTargets.All, 6);
                     }
@@ -130,17 +129,17 @@ public class HandheldCtrl : MonoBehaviour
                 }
                 else
                 {
-                    if (GUI.Button(new Rect(50, 1100, 300, 200), "GyroOff", fontStyle))
+                    if (GUI.Button(new Rect(Screen.width / 20, Screen.height / 20 + margin * 3, Screen.width / 7, Screen.height / 7), "GyroOff", fontStyle))
                     {
                         objectPV.RPC("setObjectState", PhotonTargets.All, 0);
                         
                     }
                 }
-                if (GUI.Button(new Rect(2150, 300, 300, 200), "Right", fontStyle) && focusIndex != 0 && objectCtrl.State == ObjectCtrl.ObjectState.idle)
+                if (GUI.Button(new Rect(Screen.width - (Screen.width / 20+ Screen.width / 7), Screen.height / 20 + margin, Screen.width / 7, Screen.height / 7), "Right", fontStyle) && focusIndex != 0 && objectCtrl.State == ObjectCtrl.ObjectState.idle)
                 {
                     objectPV.RPC("setObjectState", PhotonTargets.All, 4);
                 }
-                if (GUI.Button(new Rect(2150, 600, 300, 200), "Left", fontStyle) && focusIndex != 0 && objectCtrl.State == ObjectCtrl.ObjectState.idle)
+                if (GUI.Button(new Rect(Screen.width - (Screen.width / 20 + Screen.width / 7), Screen.height / 20 + margin * 2, Screen.width / 7, Screen.height / 7), "Left", fontStyle) && focusIndex != 0 && objectCtrl.State == ObjectCtrl.ObjectState.idle)
                 {
                     objectPV.RPC("setObjectState", PhotonTargets.All, 5);
                 }

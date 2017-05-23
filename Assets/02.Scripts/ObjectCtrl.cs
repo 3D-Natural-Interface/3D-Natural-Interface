@@ -99,18 +99,19 @@ public class ObjectCtrl : MonoBehaviour
 
     void getGyro(string orival)
     {
-        string[] value = orival.Split(' ');
-        pv.RPC("gyroRotate", PhotonTargets.All, value);
+        float x = Input.acceleration.y * 180.0f;
+        float z = -Input.acceleration.x * 180.0f;
+        string temp = x +" " +z;
+        pv.RPC("gyroRotate", PhotonTargets.All, temp);
     }
 
     [PunRPC]
-    void gyroRotate(string[] value)
+    void gyroRotate(string values)
     {
-        float x = float.Parse(value[2]);
-        float y = float.Parse(value[0]);
-        float z = float.Parse(value[1]);
-        float dif = x + tr[focusIndex].localRotation.x;
-        tr[focusIndex].eulerAngles = new Vector3(x, y, 0);
+        string[] value = values.Split(' ');
+        Debug.Log(value[0] + " " + value[1]);
+        //tr[focusIndex].localRotation = Quaternion.Slerp(tr[focusIndex].rotation, Quaternion.Euler(float.Parse(value[0]), 0, float.Parse(value[1])), Time.deltaTime * 20.0f);
+        tr[focusIndex].rotation = Quaternion.Slerp(tr[focusIndex].rotation, Quaternion.Euler(float.Parse(value[0]), 0, float.Parse(value[1])), Time.deltaTime * 20.0f);
     }
 
     [PunRPC]

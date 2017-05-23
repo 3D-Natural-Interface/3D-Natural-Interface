@@ -13,7 +13,6 @@ public class GrabCtrl : MonoBehaviour
     private Transform tr;
     private PhotonView pv;
     private float scaleVec;
-    private ObjectCtrl objectCtrl;
     private Vector3 centerSub1 = new Vector3(-0.04426686f, -0.2077977f, 0.06664629f);
     private Vector3 centerSub2 = new Vector3(-0.05f, -0.2577977f, 0.06664629f);
     // Use this for initialization
@@ -22,7 +21,6 @@ public class GrabCtrl : MonoBehaviour
         controller = new Controller();
         tr = GetComponent<Transform>();
         pv = GetComponentInParent<PhotonView>();
-        objectCtrl = GetComponentInParent<ObjectCtrl>();
         scaleVec = tr.localScale.x / 20;
         tr.localScale = new Vector3(tr.localScale.x + scaleVec, tr.localScale.x + scaleVec, tr.localScale.x + scaleVec);
         pv.RPC("syncronizeObject", PhotonTargets.Others, tr.position, tr.rotation);
